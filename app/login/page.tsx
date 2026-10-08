@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -18,17 +19,21 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) setError(error.message);
+      else setError("Success! Check your email to confirm your account, then sign in.");
       setIsLoading(false);
     } else {
-      router.push("/admin");
-      router.refresh();
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError(error.message);
+        setIsLoading(false);
+      } else if (data.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        router.push('/admin'); router.refresh();
+      } else {
+        router.push('/dashboard'); router.refresh();
+      }
     }
   };
 
@@ -40,7 +45,7 @@ export default function LoginPage() {
         className="max-w-md w-full mx-auto border-4 border-black shadow-neopop rounded-xl p-8 bg-[#E0E7FF]"
       >
         <h1 className="text-3xl font-black mb-6 text-center text-black">
-          Artist Login 🔒
+          {isSignUp ? "Create Account" : "Sign In"}
         </h1>
 
         {error && (
@@ -80,8 +85,16 @@ export default function LoginPage() {
             disabled={isLoading}
             className="bg-pastel-yellow border-4 border-black shadow-neopop px-6 py-3 font-bold w-full active:translate-y-1 active:shadow-neopop-active bg-[#FEF08A] text-black cursor-pointer disabled:opacity-50"
           >
-            {isLoading ? "Logging in..." : "Login to Dashboard"}
+            {isLoading ? (isSignUp ? "Signing Up..." : "Logging in...") : (isSignUp ? "Sign Up" : "Sign In")}
           </motion.button>
+
+          <button
+            type="button"
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="mt-4 text-sm text-black underline font-bold w-full text-center hover:opacity-80 block cursor-pointer"
+          >
+            {isSignUp ? "Have an account? Sign In" : "Need an account? Sign Up"}
+          </button>
         </form>
       </motion.div>
     </div>

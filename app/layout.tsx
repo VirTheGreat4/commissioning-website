@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import BackgroundCanvas from "@/components/BackgroundCanvas";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Studio Neo - Commission Art",
-  description: "Commission custom cartoony chibi and portrait art.",
+  title: "VTG Studio",
+  description: "Custom Hand-Drawn Pop Art & Chibi Commissions",
 };
 
 export default function RootLayout({
@@ -14,9 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-[#FDF4FF] text-black antialiased font-sans">
+      <body className="bg-[#FFFDF5] text-black antialiased font-sans overflow-x-hidden min-h-screen flex flex-col">
+        <BackgroundCanvas />
         <Navbar />
-        <main className="pt-24 pb-12 px-6 min-h-screen">{children}</main>
+        <main className="pt-16 md:pt-20 px-3 sm:px-6 w-full max-w-7xl mx-auto flex-1">
+          {children}
+        </main>
       </body>
     </html>
   );

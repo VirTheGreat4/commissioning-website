@@ -29,11 +29,16 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
 
-  if (request.nextUrl.pathname.startsWith("/admin") && !user) {
+  if (pathname.startsWith("/admin")) {
+    if (!user || user.email !== adminEmail) return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+  if ((pathname.startsWith("/dashboard") || pathname.startsWith("/commission")) && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -41,5 +46,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/commission/:path*"],
 };

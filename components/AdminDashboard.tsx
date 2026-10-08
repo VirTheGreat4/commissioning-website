@@ -17,27 +17,32 @@ export default function AdminDashboard() {
   const [commissions, setCommissions] = useState<CommissionRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
 
-  const fetchCommissions = async (): Promise<void> => {
+  const fetchData = async (): Promise<void> => {
     try {
       const supabase = createClient();
-      const { data, error: fetchError } = await supabase
-        .from("commissions")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const [commissionsRes, storeSettingsRes] = await Promise.all([
+        supabase.from("commissions").select("*").order("created_at", { ascending: false }),
+        supabase.from("store_settings").select("is_open").eq("id", 1).single(),
+      ]);
 
-      if (fetchError) {
-        throw fetchError;
+      if (commissionsRes.error) {
+        throw commissionsRes.error;
       }
 
-      if (data) {
-        setCommissions(data as CommissionRecord[]);
+      if (commissionsRes.data) {
+        setCommissions(commissionsRes.data as CommissionRecord[]);
+      }
+
+      if (storeSettingsRes.data) {
+        setIsOpen(storeSettingsRes.data.is_open ?? true);
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Failed to fetch commissions.");
+        setError("Failed to fetch dashboard data.");
       }
     } finally {
       setIsLoading(false);
@@ -45,8 +50,31 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchCommissions();
+    fetchData();
   }, []);
+
+  const toggleAvailability = async (): Promise<void> => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    try {
+      const supabase = createClient();
+      const { error: updateError } = await supabase
+        .from("store_settings")
+        .update({ is_open: nextState })
+        .eq("id", 1);
+
+      if (updateError) {
+        throw updateError;
+      }
+    } catch (err: unknown) {
+      setIsOpen(!nextState);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to update store availability.");
+      }
+    }
+  };
 
   const handleStatusChange = async (id: string, newStatus: string): Promise<void> => {
     const validStatus = newStatus as CommissionRecord["status"];
@@ -68,7 +96,7 @@ export default function AdminDashboard() {
       }
     } catch (err: unknown) {
       // Revert on error
-      fetchCommissions();
+      fetchData();
     }
   };
 
@@ -85,6 +113,13 @@ export default function AdminDashboard() {
       <h2 className="text-3xl font-black uppercase tracking-wider mb-8 text-center border-b-4 border-black pb-3">
         Admin Dashboard - Commissions
       </h2>
+
+      <div className="flex justify-between items-center border-4 border-black shadow-neopop rounded-xl p-6 mb-8 bg-white">
+        <h2 className="text-2xl font-black">Store Status</h2>
+        <button onClick={toggleAvailability} className={`border-4 border-black font-black text-xl px-6 py-3 rounded-xl shadow-neopop transition-all ${isOpen ? 'bg-[#A7F3D0]' : 'bg-pastel-pink'}`}>
+          {isOpen ? '🟢 OPEN FOR COMMISSIONS' : '🔴 CLOSED'}
+        </button>
+      </div>
 
       {error && (
         <div className="mb-6 border-2 border-black bg-red-200 p-4 rounded-lg font-bold text-red-800">

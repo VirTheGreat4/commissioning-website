@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
 export interface RouteItem {
   name: string;
@@ -11,6 +12,7 @@ export interface RouteItem {
 
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const routes: RouteItem[] = [
     { name: "Home", path: "/" },
@@ -18,6 +20,16 @@ export default function Navbar() {
     { name: "Live Queue", path: "/queue" },
     { name: "Admin", path: "/admin" },
   ];
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("store_settings")
+      .select("is_open")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => setIsOpen(data?.is_open ?? true));
+  }, []);
 
   useEffect(() => {
     if (isDrawerOpen) {
@@ -32,17 +44,19 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full h-20 bg-white border-b-4 border-black z-40 flex justify-between items-center px-6">
-        <Link href="/" className="font-black text-2xl tracking-tighter hover:scale-105 transition-transform">
-          STUDIO NEO 🎨
-        </Link>
-        <button
-          onClick={() => setIsDrawerOpen(true)}
-          className="border-4 border-black shadow-neopop bg-yellow-300 p-2 rounded-lg font-bold text-xl active:shadow-neopop-active active:translate-y-1 transition-all cursor-pointer"
-          aria-label="Open Navigation Menu"
-        >
-          ☰
-        </button>
+      <nav className="fixed top-0 left-0 w-full h-16 md:h-20 bg-white border-b-4 border-black z-40 flex justify-between items-center px-4 md:px-8">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsDrawerOpen(true)} className="border-3 border-black shadow-neopop bg-pastel-yellow p-1.5 md:p-2 rounded-lg font-black text-base md:text-xl active:translate-y-1 transition-all">☰</button>
+          <Link href="/" className="font-black text-lg sm:text-xl md:text-2xl tracking-tight hover:scale-105 transition-transform">VTG Studio 🎨</Link>
+        </div>
+        <div className="flex items-center gap-3">
+          {isOpen ? (
+            <span className="hidden sm:inline-block bg-[#A7F3D0] border-2 border-black font-black text-xs md:text-sm px-3 py-1 rounded-full shadow-neopop">🟢 OPEN</span>
+          ) : (
+            <span className="hidden sm:inline-block bg-pastel-pink border-2 border-black font-black text-xs md:text-sm px-3 py-1 rounded-full shadow-neopop">🔴 CLOSED</span>
+          )}
+          <Link href="/dashboard" className="border-3 border-black shadow-neopop bg-[#E0E7FF] p-1.5 md:p-2 rounded-lg font-black text-base md:text-xl active:translate-y-1 transition-all">👤</Link>
+        </div>
       </nav>
 
       <AnimatePresence>
@@ -55,12 +69,12 @@ export default function Navbar() {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
           >
             <motion.div
-              initial={{ x: "100%" }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: "-100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
               onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-              className="absolute top-0 right-0 w-72 h-full bg-[#E0E7FF] border-l-4 border-black p-6 shadow-[-8px_0px_0px_0px_rgba(0,0,0,1)] flex flex-col"
+              className="absolute top-0 left-0 w-72 h-full bg-[#E0E7FF] border-r-4 border-black p-6 shadow-[8px_0px_0px_0px_rgba(0,0,0,1)] flex flex-col"
             >
               <div className="flex justify-end">
                 <button
