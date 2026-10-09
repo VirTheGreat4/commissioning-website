@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import CommissionButton from "@/components/CommissionButton";
 
 export interface ArtStyle {
   id: string;
@@ -136,12 +137,10 @@ export default function ArtStyleShowcase() {
 
             {/* Bottom CTA */}
             <div className="p-6 pt-0">
-              <Link
-                href="/commission"
-                className="block w-full text-center bg-pastel-blue hover:bg-[#93c5fd] border-4 border-black shadow-neopop hover:shadow-neopop-active hover:translate-y-0.5 hover:translate-x-0.5 transition-all text-lg font-black py-3 px-4 rounded-xl text-black"
-              >
-                🎨 Commission In This Style ➔
-              </Link>
+              <CommissionButton
+                text="🎨 Commission In This Style ➔"
+                className="w-full block text-center mt-6 bg-[#A7F3D0] border-3 border-black shadow-neopop hover:shadow-neopop-active hover:translate-y-1 transition-all text-lg font-black px-6 py-3 rounded-xl"
+              />
             </div>
           </motion.div>
         ))}

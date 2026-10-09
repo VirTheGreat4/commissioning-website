@@ -57,9 +57,16 @@ export default function CommissionForm() {
 
   const [previews, setPreviews] = useState<ImagePreview[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(true);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error" | "bot_detected"
   >("idle");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from('store_settings').select('is_open').eq('id', 1).single()
+      .then(({ data }) => { if (data) setIsStoreOpen(data.is_open); });
+  }, []);
 
   const previewsRef = useRef<ImagePreview[]>(previews);
   useEffect(() => {
@@ -102,6 +109,17 @@ export default function CommissionForm() {
 
     if (formData.honeypot !== "") {
       setSubmitStatus("bot_detected");
+      return;
+    }
+
+    // Strict Field Validation
+    if (!formData.clientName.trim() || !formData.contactHandle.trim() || !formData.brief.trim()) {
+      alert("⚠️ Please fill out all required fields (Name, Handle, and Details).");
+      return;
+    }
+    
+    if (previews.length === 0) {
+      alert("⚠️ Please upload exactly 1 reference image.");
       return;
     }
 
@@ -169,6 +187,18 @@ export default function CommissionForm() {
         <p className="text-xl font-black text-black leading-snug">
           🎉 Request Received! Track your request status in your Dashboard.
         </p>
+      </div>
+    );
+  }
+
+  if (!isStoreOpen) {
+    return (
+      <div className="border-4 border-black shadow-neopop rounded-2xl p-8 bg-pastel-pink max-w-2xl mx-auto text-center mt-10">
+        <h2 className="text-3xl font-black mb-4">🔴 Commissions Closed</h2>
+        <p className="font-bold text-lg mb-6">Commissioning requests are currently closed. This might be due to a pile-up of commissions or a personal issue of the artist.</p>
+        <button onClick={() => window.location.href = '/queue'} className="bg-white border-4 border-black font-black p-4 rounded-xl shadow-neopop hover:translate-y-1 transition-all text-xl">
+          📋 Check the Live Queue
+        </button>
       </div>
     );
   }
@@ -246,6 +276,7 @@ export default function CommissionForm() {
               value={formData.contactPlatform} 
               onChange={(e) => setFormData({ ...formData, contactPlatform: e.target.value })}
               className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-blue focus:outline-none w-full font-bold bg-white cursor-pointer text-black"
+              required
               disabled={isSubmitting}
             >
               <option value="Discord">Discord</option>

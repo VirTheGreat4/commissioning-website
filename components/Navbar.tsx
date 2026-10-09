@@ -53,7 +53,7 @@ export default function Navbar() {
           {isOpen ? (
             <span className="hidden sm:inline-block bg-[#A7F3D0] border-2 border-black font-black text-xs md:text-sm px-3 py-1 rounded-full shadow-neopop">🟢 OPEN</span>
           ) : (
-            <span className="hidden sm:inline-block bg-pastel-pink border-2 border-black font-black text-xs md:text-sm px-3 py-1 rounded-full shadow-neopop">🔴 CLOSED</span>
+            <span className="hidden sm:inline-block bg-pastel-pink border-2 border-black font-black text-xs md:text-sm px-3 py-1 rounded-full shadow-neopop">🔴 CLOSED FOR COMMISSIONS</span>
           )}
           <Link href="/dashboard" className="border-3 border-black shadow-neopop bg-[#E0E7FF] p-1.5 md:p-2 rounded-lg font-black text-base md:text-xl active:translate-y-1 transition-all">👤</Link>
         </div>

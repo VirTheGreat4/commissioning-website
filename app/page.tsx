@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import ArtStyleShowcase from "@/components/ArtStyleShowcase";
+import CommissionButton from "@/components/CommissionButton";
 
 export default function Home() {
   return (
@@ -57,12 +58,10 @@ export default function Home() {
 
         {/* Action Button */}
         <div>
-          <Link
-            href="/commission"
+          <CommissionButton
+            text="✨ Start Your Custom Commission"
             className="inline-block bg-[#A7F3D0] border-3 sm:border-4 border-black shadow-neopop hover:shadow-neopop-active hover:translate-y-1 hover:translate-x-1 transition-all text-base sm:text-xl font-black px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl my-2 sm:my-3"
-          >
-            ✨ Start Your Custom Commission
-          </Link>
+          />
         </div>
 
         {/* Animated Scroll-Down Indicator */}
