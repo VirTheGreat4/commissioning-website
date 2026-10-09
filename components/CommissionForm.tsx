@@ -180,7 +180,7 @@ export default function CommissionForm() {
         name="b_trap"
         value={formData.honeypot}
         onChange={(e) => setFormData({ ...formData, honeypot: e.target.value })}
-        className="opacity-0 absolute -z-50 pointer-events-none h-0 w-0"
+        className="absolute -left-[9999px] top-0 opacity-0 pointer-events-none"
         tabIndex={-1}
         autoComplete="off"
       />
@@ -224,72 +224,61 @@ export default function CommissionForm() {
           </div>
         </div>
 
-        <div>
-          <label className="block font-black text-base uppercase mb-2 text-black">
-            Client Name
-          </label>
-          <input
-            type="text"
-            name="clientName"
-            value={formData.clientName}
-            onChange={(e) =>
-              setFormData({ ...formData, clientName: e.target.value })
-            }
+        <div className="flex flex-col gap-1 relative z-10">
+          <label htmlFor="clientName" className="font-black text-sm uppercase tracking-wider">Full Name</label>
+          <input 
+            id="clientName"
+            type="text" 
+            placeholder="Enter your full name"
+            value={formData.clientName} 
+            onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} 
+            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold bg-white text-black"
             required
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
-            placeholder="Your Full Name"
+            disabled={isSubmitting}
           />
         </div>
 
-        <div>
-          <label className="block font-black text-base uppercase mb-2 text-black">
-            Preferred Contact Platform
-          </label>
-          <select
-            name="contactPlatform"
-            value={formData.contactPlatform}
-            onChange={(e) =>
-              setFormData({ ...formData, contactPlatform: e.target.value })
-            }
-            required
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold bg-white text-black cursor-pointer"
-          >
-            <option value="Discord">Discord</option>
-            <option value="Instagram">Instagram</option>
-            <option value="TikTok">TikTok</option>
-            <option value="Facebook">Facebook</option>
-          </select>
+        <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+          <div className="flex flex-col gap-1 w-full sm:w-1/3">
+            <label htmlFor="contactPlatform" className="font-black text-sm uppercase tracking-wider">Platform</label>
+            <select 
+              id="contactPlatform"
+              value={formData.contactPlatform} 
+              onChange={(e) => setFormData({ ...formData, contactPlatform: e.target.value })}
+              className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-blue focus:outline-none w-full font-bold bg-white cursor-pointer text-black"
+              disabled={isSubmitting}
+            >
+              <option value="Discord">Discord</option>
+              <option value="Instagram">Instagram</option>
+              <option value="TikTok">TikTok</option>
+              <option value="Facebook">Facebook</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1 w-full sm:w-2/3">
+            <label htmlFor="contactHandle" className="font-black text-sm uppercase tracking-wider">Username / Handle</label>
+            <input 
+              id="contactHandle"
+              type="text" 
+              placeholder="e.g. @virthegreat"
+              value={formData.contactHandle} 
+              onChange={(e) => setFormData({ ...formData, contactHandle: e.target.value })} 
+              className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-pink focus:outline-none w-full font-bold bg-white text-black"
+              required
+              disabled={isSubmitting}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block font-black text-base uppercase mb-2 text-black">
-            Contact Handle
-          </label>
-          <input
-            type="text"
-            name="contactHandle"
-            value={formData.contactHandle}
-            onChange={(e) =>
-              setFormData({ ...formData, contactHandle: e.target.value })
-            }
+        <div className="flex flex-col gap-1 relative z-10">
+          <label htmlFor="brief" className="font-black text-sm uppercase tracking-wider">Commission Details</label>
+          <textarea 
+            id="brief"
+            placeholder="Describe the pose, expression, or any specific details!"
+            value={formData.brief} 
+            onChange={(e) => setFormData({ ...formData, brief: e.target.value })} 
+            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-yellow focus:outline-none w-full font-bold bg-white min-h-[120px] text-black"
             required
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
-            placeholder="@username"
-          />
-        </div>
-
-        <div>
-          <label className="block font-black text-base uppercase mb-2 text-black">
-            Project Brief
-          </label>
-          <textarea
-            name="brief"
-            value={formData.brief}
-            onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
-            required
-            rows={4}
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
-            placeholder="Describe your vision, character details, poses, and any specific requests..."
+            disabled={isSubmitting}
           />
         </div>
 
