@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 
 export interface ArtStyle {
   id: string;
@@ -11,9 +12,10 @@ export interface ArtStyle {
   turnaround: string;
   sampleImage: string;
   tag: string;
+  price?: string;
 }
 
-const ART_STYLES: ArtStyle[] = [
+const STATIC_ART_STYLES: ArtStyle[] = [
   {
     id: "chibi-cuties",
     title: "Chibi Cuties",
@@ -35,6 +37,44 @@ const ART_STYLES: ArtStyle[] = [
 ];
 
 export default function ArtStyleShowcase() {
+  const [artStyles, setArtStyles] = useState<ArtStyle[]>(STATIC_ART_STYLES);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchArtStyles = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("art_styles")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          const mapped: ArtStyle[] = data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            turnaround: item.turnaround,
+            sampleImage: item.sample_image_url || item.sampleImage || "https://picsum.photos/seed/default/600/500",
+            tag: item.tag,
+            price: item.price,
+          }));
+          setArtStyles(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch art styles:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchArtStyles();
+  }, []);
+
   return (
     <section className="mt-16 w-full">
       {/* Section Header */}
@@ -51,7 +91,7 @@ export default function ArtStyleShowcase() {
 
       {/* Responsive 2-Column Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        {ART_STYLES.map((style) => (
+        {artStyles.map((style) => (
           <motion.div
             key={style.id}
             whileHover={{ scale: 1.01 }}
@@ -81,8 +121,14 @@ export default function ArtStyleShowcase() {
                   {style.description}
                 </p>
 
+                {style.price && (
+                  <div className="mt-4 mb-2 text-xl md:text-2xl font-black text-center text-green-800 bg-[#A7F3D0] border-2 border-black rounded-lg py-1.5 shadow-neopop-active">
+                    {style.price}
+                  </div>
+                )}
+
                 {/* Turnaround Notice */}
-                <div className="mt-4 border-2 border-dashed border-black bg-pastel-yellow p-2 rounded-lg font-black text-sm text-center text-black">
+                <div className="border-2 border-dashed border-black bg-pastel-yellow p-2 rounded-lg font-black text-xs sm:text-sm text-center text-black">
                   {style.turnaround}
                 </div>
               </div>

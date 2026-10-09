@@ -3,8 +3,8 @@
   "/admin/page": "app/admin/page.js",
   "/commission/page": "app/commission/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/gallery/page": "app/gallery/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
+  "/gallery/page": "app/gallery/page.js",
   "/queue/page": "app/queue/page.js"
 }

@@ -8,10 +8,15 @@ export interface FormState {
   clientName: string;
   contactPlatform: string;
   contactHandle: string;
-  artStyle: "Chibi Cuties" | "Detailed Pop Portraits";
+  artStyle: string;
   brief: string;
   depositAgreed: boolean;
   honeypot: string;
+}
+
+export interface LiveStyle {
+  title: string;
+  price: string;
 }
 
 export interface ImagePreview {
@@ -29,6 +34,26 @@ export default function CommissionForm() {
     depositAgreed: false,
     honeypot: "",
   });
+
+  const [liveStyles, setLiveStyles] = useState<LiveStyle[]>([
+    { title: "Chibi Cuties", price: "$35+" },
+    { title: "Detailed Pop Portraits", price: "$65+" },
+  ]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("art_styles")
+      .select("title, price")
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setLiveStyles(data);
+          if (!data.some((s: any) => s.title === formData.artStyle) && data[0]) {
+            setFormData((prev) => ({ ...prev, artStyle: data[0].title }));
+          }
+        }
+      });
+  }, []);
 
   const [previews, setPreviews] = useState<ImagePreview[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -182,24 +207,20 @@ export default function CommissionForm() {
             Art Style
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(["Chibi Cuties", "Detailed Pop Portraits"] as const).map(
-              (style) => (
-                <button
-                  key={style}
-                  type="button"
-                  onClick={() =>
-                    setFormData({ ...formData, artStyle: style })
-                  }
-                  className={`p-4 rounded-xl font-black text-lg text-center cursor-pointer transition-all ${
-                    formData.artStyle === style
-                      ? "bg-pastel-yellow border-4 border-black shadow-neopop-active translate-y-1"
-                      : "bg-white border-2 border-black"
-                  }`}
-                >
-                  {style}
-                </button>
-              )
-            )}
+            {liveStyles.map((style) => (
+              <div
+                key={style.title}
+                onClick={() => setFormData({ ...formData, artStyle: style.title })}
+                className={`cursor-pointer p-4 rounded-xl border-3 border-black transition-all ${
+                  formData.artStyle === style.title
+                    ? "bg-pastel-yellow shadow-neopop-active translate-y-1"
+                    : "bg-white shadow-neopop hover:bg-gray-50"
+                }`}
+              >
+                <h4 className="font-black text-lg text-black">{style.title}</h4>
+                <p className="font-bold text-green-700">{style.price}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -215,7 +236,7 @@ export default function CommissionForm() {
               setFormData({ ...formData, clientName: e.target.value })
             }
             required
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold"
+            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
             placeholder="Your Full Name"
           />
         </div>
@@ -252,7 +273,7 @@ export default function CommissionForm() {
               setFormData({ ...formData, contactHandle: e.target.value })
             }
             required
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold"
+            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
             placeholder="@username"
           />
         </div>
@@ -267,7 +288,7 @@ export default function CommissionForm() {
             onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
             required
             rows={4}
-            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold"
+            className="border-3 border-black p-3 rounded-xl focus:ring-4 focus:ring-pastel-purple focus:outline-none w-full font-bold text-black"
             placeholder="Describe your vision, character details, poses, and any specific requests..."
           />
         </div>

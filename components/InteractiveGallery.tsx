@@ -7,11 +7,12 @@ import { createClient } from "@/utils/supabase/client";
 export interface PortfolioItem {
   id: string;
   image_url: string;
-  category: "Chibi" | "Portrait";
+  category: string;
 }
 
 export default function InteractiveGallery() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [filter, setFilter] = useState<string>("All");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +28,8 @@ export default function InteractiveGallery() {
 
       if (data) {
         setItems(data as PortfolioItem[]);
+        const uniqueCategories = ["All", ...Array.from(new Set(data.map((item: any) => item.category)))];
+        setCategories(uniqueCategories);
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -58,8 +61,6 @@ export default function InteractiveGallery() {
     );
   }
 
-  const categories: string[] = ["All", "Chibi", "Portrait"];
-
   return (
     <div className="max-w-6xl mx-auto p-6 font-sans text-black">
       <h2 className="text-3xl font-black uppercase tracking-wider mb-8 text-center border-b-4 border-black pb-3">
@@ -73,23 +74,16 @@ export default function InteractiveGallery() {
       )}
 
       {/* Filter Bar */}
-      <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        {categories.map((cat: string) => {
-          const isActive: boolean = filter === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`border-2 border-black font-bold px-6 py-2 rounded-full transition-all cursor-pointer ${
-                isActive
-                  ? "bg-purple-300 shadow-neopop-active translate-y-[2px]"
-                  : "bg-white shadow-neopop hover:bg-yellow-200"
-              }`}
-            >
-              {cat}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8">
+        {categories.map((category) => (
+          <button 
+            key={category} 
+            onClick={() => setFilter(category)} 
+            className={`border-2 border-black font-black px-4 sm:px-6 py-1.5 sm:py-2 rounded-full transition-all cursor-pointer ${filter === category ? 'bg-pastel-purple shadow-neopop-active translate-y-1' : 'bg-white shadow-neopop hover:bg-pastel-yellow'}`}
+          >
+            {category}
+          </button>
+        ))}
       </div>
 
       {/* Portfolio Grid */}
