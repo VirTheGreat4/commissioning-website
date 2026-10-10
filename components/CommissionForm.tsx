@@ -44,7 +44,8 @@ export default function CommissionForm() {
     const supabase = createClient();
     supabase
       .from("art_styles")
-      .select("title, price")
+      .select("title, price, is_available")
+      .eq("is_available", true)
       .then(({ data }) => {
         if (data && data.length > 0) {
           setLiveStyles(data);

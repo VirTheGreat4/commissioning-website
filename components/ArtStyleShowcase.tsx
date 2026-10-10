@@ -14,6 +14,7 @@ export interface ArtStyle {
   sampleImage: string;
   tag: string;
   price?: string;
+  is_available?: boolean;
 }
 
 const STATIC_ART_STYLES: ArtStyle[] = [
@@ -63,6 +64,7 @@ export default function ArtStyleShowcase() {
             sampleImage: item.sample_image_url || item.sampleImage || "https://picsum.photos/seed/default/600/500",
             tag: item.tag,
             price: item.price,
+            is_available: item.is_available ?? true,
           }));
           setArtStyles(mapped);
         }
@@ -100,11 +102,13 @@ export default function ArtStyleShowcase() {
           >
             <div>
               {/* Sample Image */}
-              <img
-                src={style.sampleImage}
-                alt={style.title}
-                className="h-64 w-full object-cover border-b-4 border-black"
-              />
+              <div className={style.is_available === false ? "opacity-60 grayscale" : ""}>
+                <img
+                  src={style.sampleImage}
+                  alt={style.title}
+                  className="h-64 w-full object-cover border-b-4 border-black"
+                />
+              </div>
 
               {/* Card Content */}
               <div className="p-6">
@@ -122,6 +126,15 @@ export default function ArtStyleShowcase() {
                   {style.description}
                 </p>
 
+                <div className="mt-3 mb-2 flex flex-col gap-1 border-y-2 border-gray-200 py-2">
+                  <div className="flex items-center text-xs sm:text-sm font-bold text-gray-600">
+                    <span className="mr-2">📐</span> 3000 x 3000 Pixels (1x1 Square)
+                  </div>
+                  <div className="flex items-center text-xs sm:text-sm font-bold text-gray-600">
+                    <span className="mr-2">🖨️</span> 300 DPI (High Quality Print-Ready)
+                  </div>
+                </div>
+
                 {style.price && (
                   <div className="mt-4 mb-2 text-xl md:text-2xl font-black text-center text-green-800 bg-[#A7F3D0] border-2 border-black rounded-lg py-1.5 shadow-neopop-active">
                     {style.price}
@@ -137,10 +150,16 @@ export default function ArtStyleShowcase() {
 
             {/* Bottom CTA */}
             <div className="p-6 pt-0">
-              <CommissionButton
-                text="🎨 Commission In This Style ➔"
-                className="w-full block text-center mt-6 bg-[#A7F3D0] border-3 border-black shadow-neopop hover:shadow-neopop-active hover:translate-y-1 transition-all text-lg font-black px-6 py-3 rounded-xl"
-              />
+              {style.is_available === false ? (
+                <div className="w-full block text-center mt-6 bg-gray-300 text-gray-600 border-3 border-gray-500 shadow-none font-black px-6 py-3 rounded-xl select-none">
+                  🚫 Temporarily Unavailable
+                </div>
+              ) : (
+                <CommissionButton
+                  text="🎨 Commission In This Style ➔"
+                  className="w-full block text-center mt-6 bg-[#A7F3D0] border-3 border-black shadow-neopop hover:shadow-neopop-active hover:translate-y-1 transition-all text-lg font-black px-6 py-3 rounded-xl"
+                />
+              )}
             </div>
           </motion.div>
         ))}

@@ -7,6 +7,9 @@ export interface CommissionRecord {
   id: string;
   client_name: string;
   email: string;
+  contact_platform?: string;
+  contact_handle?: string;
+  tier: string;
   brief: string;
   reference_urls: string[];
   status: "Pending" | "Accepted" | "Sketching" | "Coloring" | "Completed";
@@ -21,6 +24,7 @@ export interface ArtStyleItem {
   sample_image_url: string;
   tag: string;
   price: string;
+  is_available: boolean;
   created_at?: string;
 }
 
@@ -49,6 +53,7 @@ export default function AdminDashboard() {
   const [styleTag, setStyleTag] = useState("");
   const [stylePrice, setStylePrice] = useState("");
   const [styleFile, setStyleFile] = useState<File | null>(null);
+  const [styleIsAvailable, setStyleIsAvailable] = useState<boolean>(true);
 
   // Gallery Form State
   const [galleryCategory, setGalleryCategory] = useState("Chibi Cuties");
@@ -185,6 +190,7 @@ export default function AdminDashboard() {
     setStyleTag("");
     setStylePrice("");
     setStyleFile(null);
+    setStyleIsAvailable(true);
     const fileInput = document.getElementById("art-style-file-input") as HTMLInputElement;
     if (fileInput) fileInput.value = "";
   };
@@ -196,6 +202,7 @@ export default function AdminDashboard() {
     setStyleTurnaround(style.turnaround);
     setStyleTag(style.tag);
     setStylePrice(style.price);
+    setStyleIsAvailable(style.is_available ?? true);
     setStyleFile(null);
     const fileInput = document.getElementById("art-style-file-input") as HTMLInputElement;
     if (fileInput) fileInput.value = "";
@@ -225,6 +232,7 @@ export default function AdminDashboard() {
         turnaround: styleTurnaround,
         tag: styleTag,
         price: stylePrice,
+        is_available: styleIsAvailable,
       };
       if (finalImageUrl) payload.sample_image_url = finalImageUrl;
 
@@ -393,7 +401,6 @@ export default function AdminDashboard() {
                   >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b-2 border-black pb-3 gap-2">
                       <div>
-                        <h3 className="text-xl font-black uppercase">{record.client_name}</h3>
                         <a
                           href={`mailto:${record.email}`}
                           className="text-sm font-bold text-purple-700 underline"
@@ -420,8 +427,19 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="mb-4">
-                      <h4 className="font-bold text-sm uppercase text-gray-600 mb-1">Brief</h4>
-                      <p className="bg-gray-50 border-2 border-black p-3 rounded-md font-medium whitespace-pre-wrap">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <h3 className="text-xl font-black">{record.client_name}</h3>
+                        <span className="bg-[#E0E7FF] border-2 border-black px-2 py-1 rounded-md text-xs font-black shadow-neopop-active">
+                          📱 {record.contact_platform}: {record.contact_handle}
+                        </span>
+                        {record.tier && (
+                          <span className="bg-pastel-purple border-2 border-black px-3 py-1 rounded-md text-xs font-black shadow-neopop-active">
+                            🎨 Style: {record.tier}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold text-gray-800 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
+                        <span className="block text-xs uppercase text-gray-500 mb-1">Commission Brief:</span>
                         {record.brief}
                       </p>
                     </div>
@@ -534,6 +552,10 @@ export default function AdminDashboard() {
                 />
               </div>
             </div>
+            <label className="flex items-center gap-2 font-bold cursor-pointer mt-4 border-2 border-black p-3 rounded-xl bg-white shadow-neopop">
+              <input type="checkbox" checked={styleIsAvailable} onChange={(e) => setStyleIsAvailable(e.target.checked)} className="w-5 h-5 accent-pastel-purple border-2 border-black" />
+              Style is currently available for commissions
+            </label>
             <div className="flex gap-4 mt-4">
               <button type="submit" className="flex-1 bg-pastel-yellow border-4 border-black font-black p-3 rounded-xl shadow-neopop active:translate-y-1">
                 {editingStyleId ? 'Update Style' : 'Create Style'}
@@ -558,9 +580,16 @@ export default function AdminDashboard() {
                     {style.sample_image_url && (
                       <img src={style.sample_image_url} alt={style.title} className="h-48 w-full object-cover border-2 border-black rounded-lg mb-4" />
                     )}
-                    <span className="border-2 border-black bg-pastel-pink text-xs font-black px-2 py-0.5 rounded uppercase inline-block mb-2">
-                      {style.tag}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="border-2 border-black bg-pastel-pink text-xs font-black px-2 py-0.5 rounded uppercase inline-block">
+                        {style.tag}
+                      </span>
+                      {!style.is_available && (
+                        <span className="bg-red-200 text-red-800 font-black text-xs px-2 py-1 rounded border-2 border-red-800 inline-block">
+                          UNAVAILABLE
+                        </span>
+                      )}
+                    </div>
                     <h4 className="text-xl font-black">{style.title}</h4>
                     <p className="font-bold text-purple-700 my-1">Price: {style.price}</p>
                     <p className="text-sm font-medium text-gray-700">{style.description}</p>
